@@ -6,6 +6,7 @@
 const COLOR = {
   game: "black",
   minor: "purple",
+  major: "orange",
 };
 
 // Class declarations
@@ -37,39 +38,33 @@ class Artifact extends Node {
     this.links = links;
     this.devs = devs;
   }
+  get comments() {
+    return this.devs;
+  }
 }
 
 class Link extends Node {
-  constructor(id, comments = "") {
+  constructor(id, comments = "", group = 1) {
     super(id);
     this.comments = comments;
+    this.group = group;
   }
-  d3node(id = null, group = null) {
-    // Retroactively set id
-    if (id !== null) {
-      this.id = id;
-    }
-    // Retroactively set group
-    if (group !== null) {
-      this.group = group;
-    }
-    return {
-      id: this.id,
-      name: this.name,
-      group: this.group,
-      comments: this.comments,
-    };
+  setId(i) {
+    this.id = i;
+  }
+  get major() {
+    return this.group === 2;
   }
 }
 
 // ----------------------------------
 // Making the data
-// Links
+// Minor links, group 1, these are features
 const SINGLE_PLAYER = new Link(
   "single player experience",
   "for the majority of the game, if not all of it, you never encounter an embodied player",
 );
-const MULTIPLAYER = new Link("multiplayer");
+const MULTIPLAYER = new Link("multiplayer", "");
 const SHARED_ITEMS = new Link("shared abandoned items");
 const SHARED_SIGNS = new Link("shared messages in world");
 const SHARED_STRUCT = new Link("shared structures and vehicles");
@@ -79,6 +74,35 @@ const SEND_MESSAGES = new Link("send messages");
 const RATING = new Link("can rate shared things");
 const CLEAN_UP = new Link("clean up shared items");
 const INVADE_SPACE = new Link("enter another player's game");
+
+// Major links, group 2, these are more thematic
+const LONELINESS = new Link("loneliness", "", 2);
+const TO_TREASURE = new Link(
+  "trash to treasure",
+  "the things you don't want, or leave behind, may be useful to others",
+  2,
+);
+const BABYLON = new Link(
+  "communication barriers",
+  "there are barriers to communication with others, be it by curation or by consent systems",
+  2,
+);
+const STRANGERS = new Link(
+  "strangers to another",
+  "those that you encounter are more likely unknown to you, rather than known; probably have no choice",
+  2,
+);
+const GENTLE = new Link("gentle", "the game asks you to be kind to others", 2);
+const PVE = new Link(
+  "against the world",
+  "it's you against an unkind world",
+  2,
+);
+const GIFTING = new Link(
+  "gifting",
+  "you deliberatly leave or give things for others",
+  2,
+);
 
 const LINKS = [
   SINGLE_PLAYER,
@@ -92,79 +116,85 @@ const LINKS = [
   RATING,
   CLEAN_UP,
   INVADE_SPACE,
+  // major links below
+  LONELINESS,
+  TO_TREASURE,
+  BABYLON,
+  STRANGERS,
+  GENTLE,
+  PVE,
+  GIFTING,
 ];
 
 // List of games with links
 const MAJOR_GAMES = [
-  new Artifact(
-    "Death Stranding",
-    (devs = "Kojima Productions"),
-    (links = [
-      SINGLE_PLAYER,
-      SHARED_ITEMS,
-      SHARED_SIGNS,
-      SHARED_STRUCT,
-      CLEAN_UP,
-      HELP_OR_HURT,
-      ASYMMETRIC,
-      RATING,
-    ]),
-  ),
-  new Artifact(
-    "Sky",
-    (devs = "thatgamecompany"),
-    (links = [MULTIPLAYER, SHARED_SIGNS, HELP_OR_HURT, SEND_MESSAGES]),
-  ),
-  new Artifact(
-    "Dark Souls",
-    (devs = "FromSoftware"),
-    (links = [
-      SINGLE_PLAYER,
-      HELP_OR_HURT,
-      SHARED_SIGNS,
-      RATING,
-      ASYMMETRIC,
-      INVADE_SPACE,
-    ]),
-  ),
-  new Artifact(
-    "Animal Crossing",
-    (devs = "Nintendo"),
-    (links = [
-      SINGLE_PLAYER,
-      SHARED_ITEMS,
-      SHARED_SIGNS,
-      INVADE_SPACE,
-      SEND_MESSAGES,
-    ]),
-  ),
-  new Artifact(
-    "Kind Words",
-    (devs = "Popcannibal"),
-    (links = [SINGLE_PLAYER, SEND_MESSAGES]),
-  ),
+  new Artifact("Death Stranding", "Kojima Productions", [
+    SINGLE_PLAYER,
+    SHARED_ITEMS,
+    SHARED_SIGNS,
+    SHARED_STRUCT,
+    CLEAN_UP,
+    HELP_OR_HURT,
+    ASYMMETRIC,
+    RATING,
+
+    LONELINESS,
+    PVE,
+    TO_TREASURE,
+    GIFTING,
+  ]),
+  new Artifact("Sky", "thatgamecompany", [
+    MULTIPLAYER,
+    SHARED_SIGNS,
+    HELP_OR_HURT,
+    SEND_MESSAGES,
+
+    TO_TREASURE,
+    GENTLE,
+    GIFTING,
+    STRANGERS,
+    BABYLON,
+  ]),
+  new Artifact("Dark Souls", "FromSoftware", [
+    SINGLE_PLAYER,
+    HELP_OR_HURT,
+    SHARED_SIGNS,
+    RATING,
+    ASYMMETRIC,
+    INVADE_SPACE,
+
+    PVE,
+    LONELINESS,
+    GIFTING,
+  ]),
+  new Artifact("Animal Crossing", "Nintendo", [
+    SINGLE_PLAYER,
+    SHARED_ITEMS,
+    SHARED_SIGNS,
+    INVADE_SPACE,
+    SEND_MESSAGES,
+
+    GIFTING,
+    GENTLE,
+  ]),
+  new Artifact("Kind Words", "Popcannibal", [
+    SINGLE_PLAYER,
+    SEND_MESSAGES,
+
+    GIFTING,
+    STRANGERS,
+    GENTLE,
+  ]),
+  new Artifact("Ashen", "A44", [BABYLON, STRANGERS, PVE, GIFTING]),
 ];
 
-// Building data
-const gameNodes = MAJOR_GAMES.map(g => g.d3node());
-const linkNodes = LINKS.map((l, i) => l.d3node(i, 1));
-const d3links = [];
-for (let g of MAJOR_GAMES) {
-  for (let l of g.links) {
-    d3links.push({ source: g.id, target: l.id });
-  }
-}
-const gameData = {
-  nodes: [...gameNodes, ...linkNodes],
-  links: [...d3links],
-};
-console.log(gameData);
+// Set all links to a different group, and make id the index
+LINKS.map((l, i) => l.setId(i));
 
 // ----------------------------------
 // Set graph things
 const LINK_LENGTH = 60;
 const showInfo = d => {
-  console.log("help");
   document.getElementById("info").innerText = d.comments;
 };
 
@@ -184,9 +214,9 @@ const simulation = d3
       .id(d => {
         return d.id;
       })
-      .distance(() => LINK_LENGTH),
+      .distance(LINK_LENGTH),
   )
-  .force("charge", d3.forceManyBody().strength(-50))
+  .force("charge", d3.forceManyBody().strength(-100))
   .force("center", d3.forceCenter(width / 2, height / 2));
 
 const dragstarted = d => {
@@ -206,14 +236,17 @@ const dragended = d => {
   d.fy = null;
 };
 
-const color = g => {
-  if (g === 0) {
+const color = n => {
+  if (n.group === 0) {
     return COLOR.game;
-  } else {
+  } else if (n.group === 1) {
     return COLOR.minor;
+  } else if (n.group === 2) {
+    return COLOR.major;
   }
 };
 
+// Draws the graph
 const genius = graph => {
   const ticked = () => {
     link
@@ -244,9 +277,8 @@ const genius = graph => {
     .enter()
     .append("circle")
     .attr("r", 5)
-    .attr("fill", n => color(n.group))
+    .attr("fill", n => color(n))
     .on("mousedown", d => {
-      console.log(d);
       showInfo(d);
       d3.event.stopPropagation();
     })
@@ -289,4 +321,34 @@ const genius = graph => {
   simulation.force("link").links(graph.links);
 };
 
-genius(gameData);
+// ----------------------------------
+// Graph modifiers
+
+// Builds a new graph by filtering data
+let FILTER_ON = false;
+const filterNodes = () => {
+  // Toggle
+  FILTER_ON = !FILTER_ON;
+
+  // Clear previous graph
+  svg.selectAll("*").remove();
+
+  // Filter data
+  const newLinks = [];
+  for (let g of MAJOR_GAMES) {
+    for (let l of g.links) {
+      if ((FILTER_ON && l.major) || !FILTER_ON) {
+        newLinks.push({ source: g.id, target: l.id });
+      }
+    }
+  }
+  const dataLinks = LINKS.filter(l => l.major || !FILTER_ON);
+
+  const newData = {
+    nodes: [...MAJOR_GAMES, ...dataLinks],
+    links: [...newLinks],
+  };
+  genius(newData);
+};
+
+filterNodes();

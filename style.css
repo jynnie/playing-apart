@@ -16,6 +16,10 @@
   fill: purple;
 }
 
+.labels .group-2:hover {
+  fill: orange;
+}
+
 .links line {
   stroke: #aaa;
   opacity: 0.3;
@@ -25,4 +29,8 @@
   pointer-events: all;
   stroke: none;
   stroke-width: 40px;
+}
+
+h1 {
+  display: inline;
 }
