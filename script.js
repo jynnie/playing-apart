@@ -19,6 +19,9 @@ class Node {
       this.name = id;
     }
   }
+  get charge() {
+    return -100;
+  }
   d3node(id = null, group = null) {
     // Retroactively set id
     if (id !== null) {
@@ -33,13 +36,17 @@ class Node {
 }
 
 class Artifact extends Node {
-  constructor(id, devs = null, links = []) {
+  constructor(id, devs = null, links = [], about = "") {
     super(id);
     this.links = links;
     this.devs = devs;
+    this.about = about;
+  }
+  get charge() {
+    return -80;
   }
   get comments() {
-    return this.devs;
+    return `${this.devs} - ${this.about}`;
   }
 }
 
@@ -108,18 +115,22 @@ const BABYLON = new Link(
 );
 const STRANGERS = new Link(
   "strangers to another",
-  "those that you encounter are more likely unknown to you, rather than known; probably have no choice",
+  "those that you encounter are more likely unknown to you, rather than known; you probably have no say in the matter",
   2,
 );
-const GENTLE = new Link("gentle", "the game asks you to be kind to others", 2);
+const GENTLE = new Link(
+  "gentle",
+  "the game asks you to be kind to others, and maybe even rewards it",
+  2,
+);
 const PVE = new Link(
   "against the world",
-  "it's you against an unkind world",
+  "it's you against a harsh, unkind world; but maybe there's a stranger on your side",
   2,
 );
 const GIFTING = new Link(
   "gifting",
-  "you deliberatly leave or give things for others",
+  "you deliberatly leave things for or give things to others",
   2,
 );
 
@@ -196,15 +207,13 @@ const MAJOR_GAMES = [
     GIFTING,
     GENTLE,
   ]),
-  new Artifact("Kind Words", "Popcannibal", [
-    SINGLE_PLAYER,
-    SEND_MESSAGES,
-
-    GIFTING,
-    STRANGERS,
-    GENTLE,
-  ]),
-  new Artifact("Ashen", "A44", [BABYLON, STRANGERS, PVE, GIFTING]),
+  new Artifact(
+    "Kind Words",
+    "Popcannibal",
+    [SINGLE_PLAYER, SEND_MESSAGES, GIFTING, STRANGERS, GENTLE],
+    "a game about writing letters to others",
+  ),
+  new Artifact("Ashen", "A44", [BABYLON, STRANGERS, PVE]),
 ];
 
 // Set all links to a different group, and make id the index
@@ -214,6 +223,7 @@ LINKS.map((l, i) => l.setId(i));
 // Set graph things
 const LINK_LENGTH = 60;
 const showInfo = d => {
+  document.getElementById("name").innerText = d.name;
   document.getElementById("info").innerText = d.comments;
 };
 
@@ -234,7 +244,10 @@ const simulation = d3
       .strength(d => d.strength)
       .distance(LINK_LENGTH),
   )
-  .force("charge", d3.forceManyBody().strength(-100))
+  .force(
+    "charge",
+    d3.forceManyBody().strength(d => d.charge),
+  )
   .force("center", d3.forceCenter(width / 2, height / 2));
 
 const dragstarted = d => {

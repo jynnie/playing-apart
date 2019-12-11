@@ -8,11 +8,16 @@
 </head>
 
 <body>
-  <h1>playing apart</h1>
-  <span onclick="filterNodes()">toggle minor on/off</span>
-  <svg width="960" height="600">
-  </svg>
-  <div id="info" />
+  <div>
+    <h1>playing apart</h1>
+    <span onclick="filterNodes()">toggle minor on/off</span>
+  </div>
+  <div class="container">
+    <svg width="960" height="600">
+    </svg>
+    <h2 id="name"></h2>
+    <div id="info"></div>
+  </div>
 
   <!-- Load d3.js -->
   <script src="https://d3js.org/d3.v4.js"></script>
