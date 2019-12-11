@@ -49,11 +49,30 @@ class Link extends Node {
     this.comments = comments;
     this.group = group;
   }
+  get major() {
+    return this.group === 2;
+  }
+  get distance() {
+    return this.group * 30;
+  }
+  get strength() {
+    if (this.group === 1) {
+      return 0.4;
+    } else {
+      return 0.6;
+    }
+  }
   setId(i) {
     this.id = i;
   }
-  get major() {
-    return this.group === 2;
+  // Given a game, returns d3link information
+  d3link(g) {
+    return {
+      source: g.id,
+      target: this.id,
+      distance: this.distance,
+      strength: this.strength,
+    };
   }
 }
 
@@ -211,9 +230,8 @@ const simulation = d3
     "link",
     d3
       .forceLink()
-      .id(d => {
-        return d.id;
-      })
+      .id(d => d.id)
+      .strength(d => d.strength)
       .distance(LINK_LENGTH),
   )
   .force("charge", d3.forceManyBody().strength(-100))
@@ -338,7 +356,7 @@ const filterNodes = () => {
   for (let g of MAJOR_GAMES) {
     for (let l of g.links) {
       if ((FILTER_ON && l.major) || !FILTER_ON) {
-        newLinks.push({ source: g.id, target: l.id });
+        newLinks.push(l.d3link(g));
       }
     }
   }
