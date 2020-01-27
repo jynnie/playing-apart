@@ -114,13 +114,13 @@ const BABYLON = new Link(
   2,
 );
 const STRANGERS = new Link(
-  "strangers to another",
-  "those that you encounter are more likely unknown to you, rather than known; you probably have no say in the matter",
+  "stranger intimacy",
+  "those that you encounter are most likely to be strangers, and you probably have no say in the matter; but through shared experiences, you make intimate bonds",
   2,
 );
 const GENTLE = new Link(
   "gentle",
-  "the game asks you to be kind to others, and maybe even rewards it",
+  "the game asks you to be kind and charitable to others, and maybe even rewards it",
   2,
 );
 const PVE = new Link(
@@ -128,11 +128,8 @@ const PVE = new Link(
   "it's you against a harsh, unkind world; but maybe there's a stranger on your side",
   2,
 );
-const GIFTING = new Link(
-  "gifting",
-  "you deliberatly leave things for or give things to others",
-  2,
-);
+
+const MAJOR_LINKS = [LONELINESS, TO_TREASURE, BABYLON, STRANGERS, GENTLE, PVE];
 
 const LINKS = [
   SINGLE_PLAYER,
@@ -146,14 +143,7 @@ const LINKS = [
   RATING,
   CLEAN_UP,
   INVADE_SPACE,
-  // major links below
-  LONELINESS,
-  TO_TREASURE,
-  BABYLON,
-  STRANGERS,
-  GENTLE,
-  PVE,
-  GIFTING,
+  ...MAJOR_LINKS,
 ];
 
 // List of games with links
@@ -171,7 +161,6 @@ const MAJOR_GAMES = [
     LONELINESS,
     PVE,
     TO_TREASURE,
-    GIFTING,
   ]),
   new Artifact("Sky", "thatgamecompany", [
     MULTIPLAYER,
@@ -181,7 +170,6 @@ const MAJOR_GAMES = [
 
     TO_TREASURE,
     GENTLE,
-    GIFTING,
     STRANGERS,
     BABYLON,
   ]),
@@ -195,7 +183,6 @@ const MAJOR_GAMES = [
 
     PVE,
     LONELINESS,
-    GIFTING,
   ]),
   new Artifact("Animal Crossing", "Nintendo", [
     SINGLE_PLAYER,
@@ -203,14 +190,12 @@ const MAJOR_GAMES = [
     SHARED_SIGNS,
     INVADE_SPACE,
     SEND_MESSAGES,
-
-    GIFTING,
     GENTLE,
   ]),
   new Artifact(
     "Kind Words",
     "Popcannibal",
-    [SINGLE_PLAYER, SEND_MESSAGES, GIFTING, STRANGERS, GENTLE],
+    [SINGLE_PLAYER, SEND_MESSAGES, STRANGERS, GENTLE],
     "a game about writing letters to others",
   ),
   new Artifact("Ashen", "A44", [BABYLON, STRANGERS, PVE]),
