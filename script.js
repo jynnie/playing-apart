@@ -51,26 +51,57 @@ class Artifact extends Node {
 }
 
 class Link extends Node {
-  constructor(id, comments = "", group = 1) {
+  constructor(
+    id,
+    comments = "",
+    other = { group: 1, children: [], parents: [] },
+  ) {
     super(id);
     this.comments = comments;
-    this.group = group;
+
+    // Setting the group, 1 = minor, 2 = major
+    if (other.group) {
+      this.group = other.group;
+    } else {
+      this.group = 1;
+    }
+
+    // If a major, what minor nodes are children
+    if (other.children) {
+      this.children = other.children;
+    } else {
+      this.children = [];
+    }
+
+    // If a minor, what major node is parent
+    if (other.parents) {
+      this.parents = other.parents;
+    } else {
+      this.parents = [];
+    }
   }
   get major() {
     return this.group === 2;
   }
   get distance() {
-    return this.group * 30;
+    if (this.group === 1) {
+      return 20;
+    } else {
+      return 60;
+    }
   }
   get strength() {
     if (this.group === 1) {
-      return 0.4;
+      return 0.8;
     } else {
-      return 0.6;
+      return 0.4;
     }
   }
   setId(i) {
     this.id = i;
+  }
+  addParent(p) {
+    this.parents.push(p);
   }
   // Given a game, returns d3link information
   d3link(g) {
@@ -90,61 +121,107 @@ const SINGLE_PLAYER = new Link(
   "single player experience",
   "for the majority of the game, if not all of it, you never encounter an embodied player",
 );
-const MULTIPLAYER = new Link("multiplayer", "");
+const GIFTING = new Link(
+  "gifting",
+  "intentionally giving items or notes to another",
+);
+const EMOTE = new Link(
+  "emote",
+  "you can emote, it's seen by anyone in the nearby space",
+);
+const GUIDE = new Link(
+  "silent guides",
+  "strangers help each other learn and play the game",
+);
+const FRIENDS = new Link(
+  "persisting friends",
+  "you can explicitly befriend someone in the system of the game",
+);
 const SHARED_ITEMS = new Link("shared abandoned items");
 const SHARED_SIGNS = new Link("shared messages in world");
-const SHARED_STRUCT = new Link("shared structures and vehicles");
-const HELP_OR_HURT = new Link("can help or hurt");
+const SHARED_STRUCT = new Link(
+  "build things together, crowdsource resources and labor",
+);
 const ASYMMETRIC = new Link("asymmetric game");
-const SEND_MESSAGES = new Link("send messages");
 const RATING = new Link("can rate shared things");
 const CLEAN_UP = new Link("clean up shared items");
 const INVADE_SPACE = new Link("enter another player's game");
 
 // Major links, group 2, these are more thematic
-const LONELINESS = new Link("loneliness", "", 2);
+const LONELINESS = new Link(
+  "loneliness",
+  "on your own, there may be traces of others, but you never meet anyone",
+  { group: 2, children: [SINGLE_PLAYER] },
+);
 const TO_TREASURE = new Link(
   "trash to treasure",
   "the things you don't want, or leave behind, may be useful to others",
-  2,
+  { group: 2, children: [SHARED_ITEMS, GIFTING] },
 );
 const BABYLON = new Link(
-  "communication barriers",
+  "awkward",
   "there are barriers to communication with others, be it by curation or by consent systems",
-  2,
+  { group: 2, children: [EMOTE, RATING, SHARED_SIGNS] },
 );
 const STRANGERS = new Link(
   "stranger intimacy",
   "those that you encounter are most likely to be strangers, and you probably have no say in the matter; but through shared experiences, you make intimate bonds",
-  2,
+  { group: 2, children: [GIFTING, GUIDE] },
 );
 const GENTLE = new Link(
-  "gentle",
-  "the game asks you to be kind and charitable to others, and maybe even rewards it",
-  2,
+  "charity",
+  "the game asks you to be kind, gentle, and charitable to others, and maybe even rewards it",
+  { group: 2, children: [GIFTING, GUIDE] },
 );
 const PVE = new Link(
   "against the world",
   "it's you against a harsh, unkind world; but maybe there's a stranger on your side",
-  2,
+  { group: 2, children: [ASYMMETRIC] },
+);
+const CLOSER = new Link(
+  "closer",
+  "you become more than strangers with others",
+  { group: 2, children: [INVADE_SPACE, FRIENDS] },
+);
+const LIVED_IN = new Link(
+  "lived-in",
+  "the game world feels lived-in with the contributions of you and others",
+  { group: 2, children: [SHARED_SIGNS, SHARED_STRUCT, SHARED_ITEMS, CLEAN_UP] },
+);
+const HELP_OR_HURT = new Link(
+  "ambiguous intentions",
+  "it's not clear if what someone has done will help or hurt you",
+  { group: 2, children: [SHARED_SIGNS, SHARED_ITEMS, INVADE_SPACE] },
 );
 
-const MAJOR_LINKS = [LONELINESS, TO_TREASURE, BABYLON, STRANGERS, GENTLE, PVE];
+const MAJOR_LINKS = [
+  LONELINESS,
+  TO_TREASURE,
+  BABYLON,
+  STRANGERS,
+  GENTLE,
+  PVE,
+  CLOSER,
+  LIVED_IN,
+];
 
-const LINKS = [
+const MINOR_LINKS = [
   SINGLE_PLAYER,
-  MULTIPLAYER,
+  GIFTING,
+  EMOTE,
+  GUIDE,
+  FRIENDS,
   SHARED_ITEMS,
   SHARED_SIGNS,
   SHARED_STRUCT,
-  HELP_OR_HURT,
   ASYMMETRIC,
-  SEND_MESSAGES,
   RATING,
   CLEAN_UP,
   INVADE_SPACE,
-  ...MAJOR_LINKS,
+  // HELP_OR_HURT,
 ];
+
+const LINKS = [...MAJOR_LINKS, ...MINOR_LINKS];
 
 // List of games with links
 const MAJOR_GAMES = [
@@ -154,52 +231,46 @@ const MAJOR_GAMES = [
     SHARED_SIGNS,
     SHARED_STRUCT,
     CLEAN_UP,
-    HELP_OR_HURT,
+    // HELP_OR_HURT,
     ASYMMETRIC,
     RATING,
-
-    LONELINESS,
-    PVE,
-    TO_TREASURE,
   ]),
   new Artifact("Sky", "thatgamecompany", [
-    MULTIPLAYER,
+    GIFTING,
     SHARED_SIGNS,
-    HELP_OR_HURT,
-    SEND_MESSAGES,
-
-    TO_TREASURE,
-    GENTLE,
-    STRANGERS,
-    BABYLON,
+    // HELP_OR_HURT,
+    EMOTE,
+    GUIDE,
+    FRIENDS,
   ]),
   new Artifact("Dark Souls", "FromSoftware", [
     SINGLE_PLAYER,
-    HELP_OR_HURT,
+    // HELP_OR_HURT,
     SHARED_SIGNS,
     RATING,
     ASYMMETRIC,
     INVADE_SPACE,
-
-    PVE,
-    LONELINESS,
   ]),
   new Artifact("Animal Crossing", "Nintendo", [
-    SINGLE_PLAYER,
+    GIFTING,
     SHARED_ITEMS,
     SHARED_SIGNS,
     INVADE_SPACE,
-    SEND_MESSAGES,
-    GENTLE,
+    CLEAN_UP,
+    EMOTE,
+    FRIENDS,
   ]),
   new Artifact(
     "Kind Words",
     "Popcannibal",
-    [SINGLE_PLAYER, SEND_MESSAGES, STRANGERS, GENTLE],
+    [SINGLE_PLAYER, GIFTING],
     "a game about writing letters to others",
   ),
-  new Artifact("Ashen", "A44", [BABYLON, STRANGERS, PVE]),
+  new Artifact("Ashen", "A44", [GUIDE, SHARED_SIGNS, ASYMMETRIC]),
 ];
+
+// Set all the parents of minor links
+MAJOR_LINKS.map(l => l.children.map(c => c.addParent(l)));
 
 // Set all links to a different group, and make id the index
 LINKS.map((l, i) => l.setId(i));
@@ -292,7 +363,7 @@ const genius = graph => {
     .data(graph.nodes)
     .enter()
     .append("circle")
-    .attr("r", 5)
+    .attr("r", 3)
     .attr("fill", n => color(n))
     .on("mousedown", d => {
       showInfo(d);
@@ -341,6 +412,7 @@ const genius = graph => {
 // Graph modifiers
 
 // Builds a new graph by filtering data
+// If filter on, only show major nodes
 let FILTER_ON = false;
 const filterNodes = () => {
   // Toggle
@@ -352,12 +424,28 @@ const filterNodes = () => {
   // Filter data
   const newLinks = [];
   for (let g of MAJOR_GAMES) {
+    let links = new Set([]);
     for (let l of g.links) {
-      if ((FILTER_ON && l.major) || !FILTER_ON) {
+      // If only showing the major links
+      if (FILTER_ON && l.parents) {
+        // Make a link between the major link and the game
+        for (p of l.parents) {
+          if (!(p in links)) {
+            newLinks.push(p.d3link(g));
+            links.add(p);
+          }
+        }
+      } else if (!FILTER_ON) {
+        // Make a link between the game on the minor link
         newLinks.push(l.d3link(g));
+        // And a link between the minor link and the major
+        for (p of l.parents) {
+          newLinks.push(l.d3link(p));
+        }
       }
     }
   }
+  console.log(newLinks);
   const dataLinks = LINKS.filter(l => l.major || !FILTER_ON);
 
   const newData = {

@@ -8,10 +8,15 @@ h1 {
   display: inline;
 }
 
+svg {
+  transform: scale(1.5, 1.5);
+}
+
 .container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
 }
 
 #name,
@@ -23,6 +28,8 @@ h1 {
   padding: 0.5rem 1rem;
   fill: #aaa;
   pointer-events: fill;
+  font-size: 8px;
+  transform: translateY(-3px) translateX(-2px);
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
