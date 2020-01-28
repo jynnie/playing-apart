@@ -36,6 +36,10 @@ svg {
   user-select: none; /* Standard */
 }
 
+.labels .group-0 {
+  font-size: 10px;
+}
+
 .labels .group-0:hover {
   fill: black;
 }
