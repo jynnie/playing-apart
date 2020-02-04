@@ -1,28 +1,26 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <html>
+  <head>
+    <title>Playing Apart</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+  </head>
 
-<head>
-  <title>Playing Apart</title>
-  <link rel="stylesheet" type="text/css" href="./style.css">
-</head>
+  <body>
+    <div>
+      <h1>playing apart</h1>
+      <span onclick="filterNodes()">toggle minor on/off</span>
+    </div>
+    <div class="container">
+      <svg width="960" height="600"></svg>
+      <h2 id="name"></h2>
+      <div id="info"></div>
+    </div>
 
-<body>
-  <div>
-    <h1>playing apart</h1>
-    <span onclick="filterNodes()">toggle minor on/off</span>
-  </div>
-  <div class="container">
-    <svg width="960" height="600">
-    </svg>
-    <h2 id="name"></h2>
-    <div id="info"></div>
-  </div>
-
-  <!-- Load d3.js -->
-  <script src="https://d3js.org/d3.v4.js"></script>
-  <!-- Load custom data -->
-  <script src="./script.js"></script>
-</body>
-
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <!-- Load custom data -->
+    <script src="./data.js"></script>
+    <script src="./script.js"></script>
+  </body>
 </html>
